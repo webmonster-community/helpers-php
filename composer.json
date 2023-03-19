@@ -1,0 +1,34 @@
+{
+  "name": "webmonster-community/php-helpers",
+  "description": "An extensive set of PHP helper functions",
+  "keywords": [
+    "php",
+    "helpers",
+    "class"
+  ],
+  "homepage": "https://webmonster.tech/",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "webmonster",
+      "email": "hello@webmonster.tech",
+      "homepage": "https://github.com/Webmonster-Community/HeadGeneratorPhp/contributors"
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*",
+    "ext-dom": "*",
+    "ext-apcu": "*",
+    "ext-simplexml": "*",
+    "ext-gd": "*"
+  },
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "helpers\\": "src/"
+    }
+  }
+}
