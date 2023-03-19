@@ -350,19 +350,6 @@ class Helpers
         foreach (IP_HEADERS as $header) {
             $ip = filter_input(INPUT_SERVER, $header, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
             if ($ip !== false) {
-
-                if ($getHostByAddr) {
-                    $cacheKey = 'host_' . $ip;
-
-                    if (apc_exists($cacheKey)) {
-                        $host = apc_fetch($cacheKey);
-                    } else {
-                        $host = getHostByAddr($ip);
-                        apc_store($cacheKey, $host, 3600);
-                    }
-                    return $host;
-                }
-
                 return $ip;
             }
         }
