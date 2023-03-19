@@ -2,15 +2,17 @@
 
 namespace helpers;
 
+use DateTime;
+
 class Helpers
 {
     /**
      * @param $date
      * @return string
      */
-    public static function date_to_sql($date): string
+    public static function date_to_sql($date, $format = 'Y-m-d'): string
     {
-        return date('Y-m-d', strtotime($date));
+        return DateTime::createFromFormat($format, $date)->format('Y-m-d');
     }
 
     /**
