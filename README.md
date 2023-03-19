@@ -16,7 +16,13 @@ composer require webmonster-community/php-helpers
 ```
 
 ## How to use it
+Edit php.ini and add this :
 
+
+zend_extension=opcache
+[opcache]
+opcache.enable=1
+opcache.enable_cli=1
 
 Visit the Webmonster community [Webmonster](https://webmonster.tech).
 

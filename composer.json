@@ -18,12 +18,12 @@
   ],
   "require": {
     "php": "^8.0",
-    "ext-pdo": "*",
     "ext-pdo_mysql": "*",
     "ext-dom": "*",
     "ext-apcu": "*",
     "ext-simplexml": "*",
-    "ext-gd": "*"
+    "ext-gd": "*",
+    "ext-zend-opcache": "*"
   },
   "minimum-stability": "stable",
   "autoload": {
