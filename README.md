@@ -19,10 +19,13 @@ composer require webmonster-community/php-helpers
 Edit php.ini and add this :
 
 
-zend_extension=opcache
-[opcache]
-opcache.enable=1
-opcache.enable_cli=1
+[apcu]
+extension=php_apcu
+apc.enabled=1
+apc.shm_size=32M
+apc.ttl=7200
+apc.enable_cli=1
+apc.serializer=php
 
 Visit the Webmonster community [Webmonster](https://webmonster.tech).
 
