@@ -17,13 +17,7 @@
     }
   ],
   "require": {
-    "php": "^8.0",
-    "ext-pdo_mysql": "*",
-    "ext-dom": "*",
-    "ext-apcu": "*",
-    "ext-simplexml": "*",
-    "ext-gd": "*",
-    "ext-zend-opcache": "*"
+    "php": ">=7.4"
   },
   "minimum-stability": "stable",
   "autoload": {
