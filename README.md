@@ -18,6 +18,7 @@ composer require webmonster-community/php-helpers
 
 ## How to use it
 
+[Date](docs/DATE.md)
 
 Visit the Webmonster community [Webmonster](https://webmonster.tech).
 
