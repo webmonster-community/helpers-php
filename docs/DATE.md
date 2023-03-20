@@ -6,7 +6,7 @@ An extensive set of PHP helper functions
 * [Date SQL](DATE.md#date_to_sql-)
 * [Date Diff](DATE.md#date_diff-)
 
-### date_to_sql [🔗](DATE.md#date_to_sql)
+### date_to_sql [🔗](DATE.md#date_to_sql-)
 
 A function to convert a date to SQL format
 
@@ -38,8 +38,9 @@ A function to convert a date to SQL format
     $dateSql = Helpers::date_to_sql($date);
     echo $dateSQL; // 2023-03-20
 ```
+[Top](#date-)
 
-### date_diff [🔗](DATE.md#date_diff)
+### date_diff [🔗](DATE.md#date_diff-)
 A function to calculate the difference between two dates, in minute(s), hour(s), week(s), month(s)
 
 **Example #1 Date diff minutes**
@@ -82,6 +83,7 @@ A function to calculate the difference between two dates, in minute(s), hour(s),
     $dateDiff = Helpers::get_date_diff($date1, $date2, 'months');
     echo $dateDiff; // 2 months
 ```
+[Top](#date-)
 
 Visit the Webmonster community [Webmonster](https://webmonster.tech).
 
