@@ -3,16 +3,32 @@
 namespace helpers;
 
 use DateTime;
+use DateTimeZone;
 
 class Helpers
 {
+
     /**
      * @param $date
-     * @return string
+     * @return string|null
      */
-    public static function date_to_sql($date, $format = 'Y-m-d'): string
+    public static function date_to_sql($date): ?string
     {
-        return DateTime::createFromFormat($format, $date)->format('Y-m-d');
+        $datetime = null;
+        $formats = array('d.m.Y', 'd-m-Y', 'd/m/Y', 'Y-m-d', 'Y/m/d', 'Y.m.d');
+        foreach ($formats as $format) {
+            $datetime = DateTime::createFromFormat($format, $date);
+            if ($datetime !== false) {
+                break;
+            }
+        }
+
+        if (!$datetime) {
+            return null;
+        }
+
+        $datetime->setTimezone(new DateTimeZone('UTC'));
+        return $datetime->format('Y-m-d');
     }
 
     /**
@@ -33,7 +49,11 @@ class Helpers
                 $hours = floor($total_minutes / 60);
                 $minutes = $total_minutes % 60;
                 $seconds = $diff->s;
-                return sprintf('%d H %d Min %d sec', $hours, $minutes, $seconds);
+                if ($hours > 0) {
+                    return sprintf('%d %s %d %s %d %s', $hours, ($hours > 1 ? 'hours' : 'hour'), $minutes, ($minutes > 1 ? 'minutes' : 'minute'), $seconds, ($seconds > 1 ? 'seconds' : 'second'));
+                } else {
+                    return sprintf('%d %s %d %s', $minutes, ($minutes > 1 ? 'minutes' : 'minute'), $seconds, ($seconds > 1 ? 'seconds' : 'second'));
+                }
             case 'weeks':
                 return floor($diff->format('%a') / 7);
             case 'months':
