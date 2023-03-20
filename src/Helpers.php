@@ -16,6 +16,36 @@ class Helpers
     }
 
     /**
+     * @param $date1
+     * @param $date2
+     * @param $interval
+     * @return float|bool|int
+     */
+    public static function get_date_diff($date1, $date2, $interval = 'days')
+    {
+        $diff = date_diff(date_create($date1), date_create($date2));
+
+        switch ($interval) {
+            case 'minutes':
+                return ($diff->days * 1440) + ($diff->h * 60) + $diff->i;
+            case 'hours':
+                $total_minutes = ($diff->days * 24 * 60) + ($diff->h * 60) + $diff->i;
+                $hours = floor($total_minutes / 60);
+                $minutes = $total_minutes % 60;
+                $seconds = $diff->s;
+                return sprintf('%d H %d Min %d sec', $hours, $minutes, $seconds);
+            case 'weeks':
+                return floor($diff->format('%a') / 7);
+            case 'months':
+                return ($diff->y * 12) + $diff->m;
+            case 'years':
+                return $diff->y;
+            default:
+                return $diff->days;
+        }
+    }
+
+    /**
      * @param $string
      * @return string
      */
@@ -278,25 +308,6 @@ class Helpers
     {
         $length = strlen($string);
         return !($length < $minLength || $length > $maxLength);
-    }
-
-    /**
-     * @param $date1
-     * @param $date2
-     * @param $interval
-     * @return float|bool|int
-     */
-    public static function get_date_diff($date1, $date2, $interval = 'days'): float|bool|int
-    {
-        $diff = date_diff(date_create($date1), date_create($date2));
-        return match ($interval) {
-            'minutes' => ($diff->days * 1440) + ($diff->h * 60) + $diff->i,
-            'hours' => ($diff->days * 24) + $diff->h + ($diff->i / 60),
-            'weeks' => floor($diff->format('%a') / 7),
-            'months' => ($diff->y * 12) + $diff->m,
-            'years' => $diff->y,
-            default => $diff->days,
-        };
     }
 
     /**
