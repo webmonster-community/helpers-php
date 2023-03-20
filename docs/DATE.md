@@ -3,8 +3,8 @@ An extensive set of PHP helper functions
 
 ## Date
 
-[Date SQL](DATE.md#date_to_sql)
-[Date Diff](DATE.md#date_diff)
+* [Date SQL](DATE.md#date_to_sql-)
+* [Date Diff](DATE.md#date_diff-)
 
 ### date_to_sql [🔗](DATE.md#date_to_sql)
 
