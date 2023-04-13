@@ -95,12 +95,12 @@ class Helpers
 
     public static function sanitize_string(string|array $input): string|array
     {
-        $output = '';
         if (!$input) {
-            return $output;
+            return '';
         }
 
         if (is_array($input)) {
+            $output = [];
             foreach ($input as $key => $val) {
                 $output[$key] = self::sanitize_string($val);
             }
@@ -108,7 +108,6 @@ class Helpers
             $output = trim(strip_tags($input));
             $output = htmlspecialchars($output, ENT_HTML5, 'UTF-8');
         }
-
         return $output;
     }
 
@@ -117,10 +116,10 @@ class Helpers
         $inputEmail = trim($inputEmail);
         $inputEmail = filter_var($inputEmail, FILTER_SANITIZE_EMAIL);
 
-        return $inputEmail ? strtolower($inputEmail) : '';
+        return strtolower($inputEmail);
     }
 
-    public static function sanitize_int(string|int $inputInt): mixed
+    public static function sanitize_int($inputInt): mixed
     {
         return filter_var($inputInt, FILTER_SANITIZE_NUMBER_INT);
     }
