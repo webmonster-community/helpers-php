@@ -4,24 +4,53 @@ namespace helpers;
 
 class Helpers
 {
+    /**
+     * @throws \Exception
+     */
     public static function date_to_sql(string $date): ?string
     {
         $formats = ['d.m.Y', 'd-m-Y', 'd/m/Y', 'Y-m-d', 'Y/m/d', 'Y.m.d'];
         foreach ($formats as $format) {
-            $datetime = \DateTime::createFromFormat($format, $date);
+            $datetime = \DateTimeImmutable::createFromFormat($format, $date, new \DateTimeZone('UTC'));
 
             if ($datetime !== false) {
                 break;
             }
         }
-
-        if (!($datetime instanceof \DateTime)) {
+        if ($datetime === false) {
             return null;
         }
 
-        $datetime->setTimezone(new \DateTimeZone('UTC'));
-
         return $datetime->format('Y-m-d');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function convertDateUser(string $date, string $locale = '', string $timezone = 'America/Martinique'): \DateTimeImmutable|string|bool
+    {
+        $newDate = (new \DateTimeImmutable($date))
+            ->setTimezone(new \DateTimeZone($timezone));
+
+        if (!($newDate instanceof \DateTimeImmutable)) {
+            throw new \Exception('Invalid date');
+        }
+
+        if (!empty($locale)) {
+            if (!preg_match('/^[a-z]{2}_[A-Z]{2}$/', $locale)) {
+                throw new \Exception('Invalid locale');
+            }
+            $newDate = self::formatDateUser($newDate, $locale);
+        }
+
+        return $newDate;
+    }
+
+    public static function formatDateUser(\DateTimeInterface $date, string $locale = 'fr_FR'): bool|string
+    {
+        $formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
+
+        return $formatter->format($date);
     }
 
     public static function get_date_diff(string $date1, string $date2, string $interval = 'days'): string
@@ -30,7 +59,7 @@ class Helpers
 
         switch ($interval) {
             case 'minutes':
-                return ($diff->days * 1440) + ($diff->h * 60) + $diff->i;
+                return (string) (($diff->days * 1440) + ($diff->h * 60) + $diff->i);
             case 'hours':
                 $total_minutes = ($diff->days * 24 * 60) + ($diff->h * 60) + $diff->i;
                 $hours = floor($total_minutes / 60);
@@ -49,13 +78,13 @@ class Helpers
 
                 return trim($result);
             case 'weeks':
-                return floor($diff->days / 7);
+                return (string) floor($diff->days / 7);
             case 'months':
-                return ($diff->y * 12) + $diff->m;
+                return (string) (($diff->y * 12) + $diff->m);
             case 'years':
-                return $diff->y;
+                return (string) $diff->y;
             default:
-                return $diff->days;
+                return (string) $diff->days;
         }
     }
 
@@ -66,8 +95,9 @@ class Helpers
 
     public static function sanitize_string(string|array $input): string|array
     {
+        $output = '';
         if (!$input) {
-            return '';
+            return $output;
         }
 
         if (is_array($input)) {
@@ -79,7 +109,7 @@ class Helpers
             $output = htmlspecialchars($output, ENT_HTML5, 'UTF-8');
         }
 
-        return $output ?? '';
+        return $output;
     }
 
     public static function sanitize_email(string $inputEmail): string
@@ -87,10 +117,10 @@ class Helpers
         $inputEmail = trim($inputEmail);
         $inputEmail = filter_var($inputEmail, FILTER_SANITIZE_EMAIL);
 
-        return strtolower($inputEmail);
+        return $inputEmail ? strtolower($inputEmail) : '';
     }
 
-    public static function sanitize_int($inputInt): mixed
+    public static function sanitize_int(string|int $inputInt): mixed
     {
         return filter_var($inputInt, FILTER_SANITIZE_NUMBER_INT);
     }
@@ -108,11 +138,7 @@ class Helpers
             return false;
         }
 
-        if (!preg_match('/^\w+$/', $username)) {
-            return false;
-        }
-
-        return true;
+        return (bool) preg_match('/^\w+$/', $username);
     }
 
     public static function is_valid_email(string $email): bool
@@ -262,7 +288,8 @@ class Helpers
             $all .= $set;
         }
         $all = str_split($all);
-        for ($i = 0; $i < $length - count($sets); ++$i) {
+        $setsCount = count($sets);
+        for ($i = 0; $i < $length - $setsCount; ++$i) {
             $password .= $all[array_rand($all)];
         }
         $password = str_shuffle($password);
@@ -277,16 +304,15 @@ class Helpers
             $dash_str .= substr($password, 0, $dash_len).'-';
             $password = substr($password, $dash_len);
         }
-        $dash_str .= $password;
 
-        return $dash_str;
+        return $dash_str.$password;
     }
 
     public static function check_string_length($string, $minLength, $maxLength): bool
     {
         $length = strlen($string);
 
-        return !($length < $minLength || $length > $maxLength);
+        return $length >= $minLength && $length <= $maxLength;
     }
 
     /**
@@ -294,10 +320,11 @@ class Helpers
      */
     public static function generate_password_hash(string $password): array
     {
+        $e = null;
         try {
             $salt = bin2hex(random_bytes(16));
         } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf('Erreur : "%s" was created', $e));
+            throw new \RuntimeException(sprintf('Erreur : "%s" was created', $e), $e->getCode(), $e);
         }
 
         $options = [
@@ -395,10 +422,8 @@ class Helpers
             return false;
         }
 
-        if (!is_dir(dirname($json_file))) {
-            if (!mkdir($concurrentDirectory = dirname($json_file), 0755, true) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
+        if (!is_dir(dirname($json_file)) && (!mkdir($concurrentDirectory = dirname($json_file), 0755, true) && !is_dir($concurrentDirectory))) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
         }
 
         $header = null;
@@ -425,10 +450,8 @@ class Helpers
         if (!file_exists($csv_file)) {
             return false;
         }
-        if (!is_dir(dirname($xml_file))) {
-            if (!mkdir($concurrentDirectory = dirname($xml_file), 0755, true) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
-            }
+        if (!is_dir(dirname($xml_file)) && (!mkdir($concurrentDirectory = dirname($xml_file), 0755, true) && !is_dir($concurrentDirectory))) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
         }
 
         $csv = file_get_contents($csv_file);
@@ -461,10 +484,8 @@ class Helpers
 
     public static function download_gravatar_icon($email, $size, $type, $filename, $dest_path): bool
     {
-        if (!is_dir($dest_path)) {
-            if (!mkdir($dest_path, 0755, true) && !is_dir($dest_path)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dest_path));
-            }
+        if (!is_dir($dest_path) && (!mkdir($dest_path, 0755, true) && !is_dir($dest_path))) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dest_path));
         }
 
         $url = 'https://www.gravatar.com/avatar/';
@@ -484,10 +505,8 @@ class Helpers
 
     public static function csv_to_sql($csv_path, $table_name, $has_header = true, $dest_path = null): string
     {
-        if (!is_null($dest_path) && !is_dir($dest_path)) {
-            if (!mkdir($dest_path, 0755, true) && !is_dir($dest_path)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dest_path));
-            }
+        if (!is_null($dest_path) && !is_dir($dest_path) && (!mkdir($dest_path, 0755, true) && !is_dir($dest_path))) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dest_path));
         }
 
         $csv_data = array_map('str_getcsv', file($csv_path));
@@ -556,10 +575,8 @@ class Helpers
         }
 
         $output_dir = dirname($output_file);
-        if (!is_dir($output_dir)) {
-            if (!mkdir($output_dir, 0755, true) && !is_dir($output_dir)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $output_dir));
-            }
+        if (!is_dir($output_dir) && (!mkdir($output_dir, 0755, true) && !is_dir($output_dir))) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $output_dir));
         }
 
         $command = "ffmpeg -i $input_file -acodec libvorbis $output_file";
@@ -586,10 +603,8 @@ class Helpers
         }
 
         $output_dir = dirname($output_file);
-        if (!is_dir($output_dir)) {
-            if (!mkdir($output_dir, 0755, true) && !is_dir($output_dir)) {
-                throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé', $output_dir));
-            }
+        if (!is_dir($output_dir) && (!mkdir($output_dir, 0755, true) && !is_dir($output_dir))) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé', $output_dir));
         }
 
         $command = "ffmpeg -i $input_file -c:v libtheora -c:a libvorbis -q:v 6 -q:a 6 $output_file";

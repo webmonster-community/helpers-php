@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\Unit;
+namespace tests\unit;
 
 use helpers\Helpers;
 use PHPUnit\Framework\TestCase;
@@ -10,7 +10,7 @@ class DateUtilsTest extends TestCase
     /**
      * @dataProvider datesProvider
      */
-    public function testGetDateDiff($date1, $date2, $interval, $expectedResult)
+    public function testGetDateDiff(string $date1, string $date2, string $interval, string $expectedResult): void
     {
         $result = Helpers::get_date_diff($date1, $date2, $interval);
         $this->assertEquals($expectedResult, $result);
